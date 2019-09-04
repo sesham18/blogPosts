@@ -41,7 +41,7 @@ router.post('/', jsonParser, (req, res) => {
 
 // Delete recipes (by id)!
 router.delete('/:id', (req, res) => {
-  Recipes.delete(req.params.id);
+  BlogPosts.delete(req.params.id);
   console.log(`Deleted blog post item \`${req.params.ID}\``);
   res.status(204).end();
 });
@@ -52,7 +52,7 @@ router.delete('/:id', (req, res) => {
 // of that, log error and send back status code 400. otherwise
 // call `Recipes.updateItem` with updated recipe.
 router.put('/:id', jsonParser, (req, res) => {
-  const requiredFields = ['name', 'ingredients', 'id'];
+  const requiredFields = ['title', 'content', 'author', 'publishDate', 'id'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -68,11 +68,13 @@ router.put('/:id', jsonParser, (req, res) => {
     console.error(message);
     return res.status(400).send(message);
   }
-  console.log(`Updating shopping list item \`${req.params.id}\``);
-  const updatedItem = Recipes.update({
+  console.log(`Updating blog post item \`${req.params.id}\``);
+  const updatedItem = blogPosts.update({
     id: req.params.id,
-    name: req.body.name,
-    ingredients: req.body.ingredients
+    title: req.body.title,
+    content: req.body.content, 
+    author: req.body.author,
+    publishDate: req.body.publishDate
   });
   res.status(204).end();
 })
