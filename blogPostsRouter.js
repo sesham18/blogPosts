@@ -5,19 +5,19 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
 
-const {Recipes} = require('./models');
+const {BlogPosts} = require('./models');
 
 // we're going to add some recipes to Recipes
 // so there's some data to look at
-Recipes.create(
-  'boiled white rice', ['1 cup white rice', '2 cups water', 'pinch of salt']);
-Recipes.create(
-  'milkshake', ['2 tbsp cocoa', '2 cups vanilla ice cream', '1 cup milk']);
+BlogPosts.create(
+  'Harry Potter', 'A wizard is made', 'JK Rowling', 'Nov 1999');
+BlogPosts.create(
+  'Tuck Everlasting', 'An immortal boy meets a mortal girl', 'Natalie Babbit', '1989'); 
 
 // send back JSON representation of all recipes
 // on GET requests to root
 router.get('/', (req, res) => {
-  res.json(Recipes.get());
+  res.json(BlogPosts.get());
 });
 
 
