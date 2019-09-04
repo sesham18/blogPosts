@@ -14,19 +14,19 @@ BlogPosts.create(
 BlogPosts.create(
   'Tuck Everlasting', 'An immortal boy meets a mortal girl', 'Natalie Babbit', '1989'); 
 
-// send back JSON representation of all recipes
+// send back JSON representation of all blog posts
 // on GET requests to root
 router.get('/', (req, res) => {
   res.json(BlogPosts.get());
 });
 
 
-// when new recipe added, ensure has required fields. if not,
+// when new blog post added, ensure has required fields. if not,
 // log error and return 400 status code with hepful message.
 // if okay, add new item, and return it with a status 201.
 router.post('/', jsonParser, (req, res) => {
   // ensure `name` and `budget` are in request body
-  const requiredFields = ['name', 'ingredients'];
+  const requiredFields = ['title', 'content', 'author', 'publishDate'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -35,14 +35,14 @@ router.post('/', jsonParser, (req, res) => {
       return res.status(400).send(message);
     }
   }
-  const item = Recipes.create(req.body.name, req.body.ingredients);
+  const item = BlogPosts.create(req.body.title, req.body.content, req.body.author, req.body.publishDate);
   res.status(201).json(item);
 });
 
 // Delete recipes (by id)!
 router.delete('/:id', (req, res) => {
   Recipes.delete(req.params.id);
-  console.log(`Deleted shopping list item \`${req.params.ID}\``);
+  console.log(`Deleted blog post item \`${req.params.ID}\``);
   res.status(204).end();
 });
 
