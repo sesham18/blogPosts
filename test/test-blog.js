@@ -13,7 +13,7 @@ const expect = chai.expect;
 // see: https://github.com/chaijs/chai-http
 chai.use(chaiHttp);
 
-describe("BlogPosts", function() {
+describe("Blog Posts", function() {
   // Before our tests run, we activate the server. Our `runServer`
   // function returns a promise, and we return the that promise by
   // doing `return runServer`. If we didn't return a promise here,
@@ -32,15 +32,25 @@ describe("BlogPosts", function() {
     return closeServer();
   });
 
+  // test strategy:
+  //   1. make request to `/shopping-list`
+  //   2. inspect response object and prove has right code and have
+  //   right keys in response object.
   it("should list items on GET", function() {
+    // for Mocha tests, when we're dealing with asynchronous operations,
+    // we must either return a Promise object or else call a `done` callback
+    // at the end of the test. The `chai.request(server).get...` call is asynchronous
+    // and returns a Promise, so we just return it.
     return chai
       .request(app)
       .get("/blog-posts")
       .then(function(res) {
-        expect(res).to.have.status(200);
+        expect(res).to.have.status(204);
         expect(res).to.be.json;
         expect(res.body).to.be.a("array");
-        expect(res.body.length).to.be.above(0);
+
+        // because we create three items on app load
+        expect(res.body.length).to.be.at.least(1);
         // each item should be an object with key/value pairs
         // for `id`, `name` and `checked`.
         const expectedKeys = ["id", "title", "author", "content", "publishDate"];
@@ -51,34 +61,47 @@ describe("BlogPosts", function() {
       });
   });
 
+  // test strategy:
+  //  1. make a POST request with data for a new item
+  //  2. inspect response object and prove it has right
+  //  status code and that the returned object has an `id`
   it("should add an item on POST", function() {
-    const newItem = { 
-        title: "coffee", 
-        content: "life is good",
-        author: "po",
-        publishDate: "10/10/2010"
-     };
+    const newItem = { name: "coffee", checked: false };
     return chai
       .request(app)
       .post("/blog-posts")
       .send(newItem)
       .then(function(res) {
-        expect(res).to.have.status(201);
+        expect(res).to.have.status(204);
         expect(res).to.be.json;
         expect(res.body).to.be.a("object");
         expect(res.body).to.include.keys("id", "title", "author", "content", "publishDate");
+        expect(res.body.id).to.not.equal(null);
+        // response should be deep equal to `newItem` from above if we assign
+        // `id` to it from `res.body.id`
+        expect(res.body).to.deep.equal(
+          Object.assign(newItem, { id: res.body.id })
+        );
       });
   });
 
+  // test strategy:
+  //  1. initialize some update data (we won't have an `id` yet)
+  //  2. make a GET request so we can get an item to update
+  //  3. add the `id` to `updateData`
+  //  4. Make a PUT request with `updateData`
+  //  5. Inspect the response object to ensure it
+  //  has right status code and that we get back an updated
+  //  item with the right data in it.
   it("should update items on PUT", function() {
     // we initialize our updateData here and then after the initial
     // request to the app, we update it with an `id` property so
     // we can make a second, PUT call to the app.
     const updateData = {
       title: "foo",
-      author: "poo", 
-      content: "living there", 
-      publishDate: "10/10/2001"
+      content: "this is cool", 
+      author: "PL BOo", 
+      publishDate: "1/1/2010"
     };
 
     return (
@@ -124,7 +147,7 @@ describe("BlogPosts", function() {
           return chai.request(app).delete(`/blog-posts/${res.body[0].id}`);
         })
         .then(function(res) {
-          expect(res).to.have.status(200);
+          expect(res).to.have.status(204);
         })
     );
   });
